@@ -1,10 +1,9 @@
 var environment = require("./environment");
-var core = require('./lib');
+var coreLib = require('../lib');
 var _ = require('lodash');
 
 function decorate (env) {
-	_.extend(env, core);
-	return env;
+	return _.extend(env, coreLib);
 };
 
 var base = environment({

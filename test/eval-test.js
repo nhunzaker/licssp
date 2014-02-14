@@ -10,4 +10,8 @@ describe("Eval", function() {
 	it ("can add strings", function() {
 		val('(+ \"foo\" \"bar\")').should.equal('foobar');
 	});
+
+	it ("can add strings", function() {
+		val('(+ \"foo\" \"bar\")').should.equal('foobar');
+	});
 });
