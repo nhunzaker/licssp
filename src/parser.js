@@ -23,9 +23,6 @@ function read_from(tokens) {
 	}
 }
 
-function read (string) {
-	// Read a Scheme expression from a string.
+module.exports = function read (string) {
 	return read_from(tokenize(string));
-}
-
-module.exports = read;
+};

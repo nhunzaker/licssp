@@ -1,0 +1,25 @@
+{
+  "name": "licssp",
+  "version": "0.0.0",
+  "description": "A css lisp",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nhunzaker/licssp.git"
+  },
+  "keywords": [
+    "css",
+    "lisp"
+  ],
+  "author": "Nate Hunzaker",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/nhunzaker/licssp/issues"
+  },
+  "dependencies": {
+    "lodash": "~2.4.1"
+  }
+}
