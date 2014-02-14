@@ -1,6 +1,8 @@
 var analyze = require('./analyzer');
+var parse = require('./parser');
 var global = require('./global');
 
 module.exports = function (x) {
-	return analyze(x)(global);
+	var parsed = parse(x);
+	return analyze(parsed)(global);
 };

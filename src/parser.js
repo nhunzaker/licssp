@@ -1,25 +1,24 @@
-var atom = require("./atomizer");
+var atomize = require("./atomizer");
 var tokenize = require('./tokenizr');
 
 function read_from(tokens) {
-	// Read an expression from a sequence of tokens.
-	if (!tokens.length) throw SyntaxError('unexpected EOF while reading');
+	if (!tokens.length) {
+		throw SyntaxError('unexpected EOF while reading');
+	}
 
-	var token = tokens.shift(),
-	    L = [];
+	var token = tokens.shift();
 
-	if ('(' === token) {
+	if (token === '(') {
+		var L = [];
 		while (')' !== tokens[0]) {
 			L.push(read_from(tokens));
 		}
 		tokens.shift();
 		return L;
+	} else if (token === ')') {
+		throw SyntaxError('unexpected )');
 	} else {
-		if (')' === token) {
-			throw SyntaxError('unexpected )');
-		} else {
-			return atom(token);
-		}
+		return atomize(token);
 	}
 }
 

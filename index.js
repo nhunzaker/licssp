@@ -1,8 +1,7 @@
-var parse = require('./src/parser');
-var evale = require('./src/eval');
+var val = require('./src/eval');
 
 var program = "(begin (define r 3) (* 3.141592653 (* r r)))";
+var program2 = '(+ "foo" "bar")';
 
-var result = evale(parse(program));
-
-console.log(result);
+console.log(val(program));
+console.log(val(program2));

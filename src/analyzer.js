@@ -1,9 +1,11 @@
 var environment = require('./environment');
+var isWrappedString = /^\"(.+)\"$/;
 
 var analyze = module.exports = function (x) {
 	if (typeof x === 'string') {	//variable reference
 		return function (env) {
-			return env.find(x.valueOf())[x.valueOf()];
+			var matches = x.match(isWrappedString);
+			return matches? matches[1] : env.find(x.valueOf())[x.valueOf()];
 		};
 	}
 	else if (typeof x === 'number') {	//constant literal
@@ -11,7 +13,7 @@ var analyze = module.exports = function (x) {
 	}
 	else if (x[0] === 'quote') {	//(quote exp)
 		var qval = x[1];
-		return function (env) { return  qval; };
+		return function (env) { return qval; };
 	}
 	else if (x[0] === 'if') {		//(if test conseq alt)
 		return function (pproc, cproc, aproc) {
