@@ -1,91 +1,40 @@
-var environment = require('./environment');
-var isWrappedString = /^\"(.+)\"$/;
+var invoke = require('./invoke');
 
-function parseString(str, env) {
-	var isQuoted = str.match(isWrappedString);
-
-	if (isQuoted) {
-		return isQuoted[1];
-	}
-
-	return env.find(str.valueOf())[str.valueOf()];
-}
+var keyString = require('./keywords/string');
+var keyNumber = require('./keywords/number');
+var keyQuote  = require('./keywords/quote');
+var keyIf     = require('./keywords/if');
+var keySet    = require('./keywords/set');
+var keyDefine = require('./keywords/define');
+var keyLambda = require('./keywords/lambda');
+var keyBegin  = require('./keywords/begin');
 
 var analyze = module.exports = function (x) {
-	if (typeof x === 'string') {	//variable reference
-		return function (env) {
-			return parseString(x, env);
-		};
+	if (keyString.test(x)) {
+		return keyString.compile(x);
 	}
-	else if (typeof x === 'number') {	//constant literal
-		return function (env) { return x; };
+	else if (keyNumber.test(x)) {
+		return keyNumber.compile(x);
 	}
-	else if (x[0] === 'quote') {	//(quote exp)
-		var qval = x[1];
-		return function (env) { return qval; };
+	else if (keyQuote.test(x)) {
+		return keyQuote.compile(x);
 	}
-	else if (x[0] === 'if') {		//(if test conseq alt)
-		return function (pproc, cproc, aproc) {
-			return function (env) {
-				return pproc(env)? cproc(env) : aproc(env);
-			};
-		}(analyze(x[1]), analyze(x[2]), analyze(x[3]));
+	else if (keyIf.test(x)) {
+		return keyQuote.compile(x, analyze);
 	}
-	else if (x[0] === 'set!') { //(set! var exp)
-		return function (vvar, vproc) {
-			return function (env) { env.find(vvar)[vvar] = vproc(env); };
-		}(x[1], analyze(x[2]));
+	else if (keySet.test(x)) {
+		return keySet.compile(x, analyze);
 	}
-	else if (x[0] === 'define') { //(define var exp)
-		return function (vvar, vproc) {
-			return function (env) { env[vvar] = vproc(env); };
-		}(x[1], analyze(x[2]));
+	else if (keyDefine.test(x)) {
+		return keyDefine.compile(x, analyze);
 	}
-	else if (x[0] === 'lambda') { //(lambda (var*) exp)
-		return analyze_lambda(x);
+	else if (keyLambda.test(x)) {
+		return keyLambda.compile(x, analyze);
 	}
-	else if (x[0] === 'begin') { //(begin exp*)
-		x.shift();
-		return analyze_sequence(x);
+	else if (keyBegin.test(x)) {
+		return keyBegin.compile(x);
 	}
 	else { //(proc exp*)
-		var aprocs = x.map(analyze);
-		var fn = aprocs.shift();
-
-		return function (env) {
-			var args = aprocs.map(function (aproc) {
-				return aproc(env);
-			});
-			return fn(env).apply(env, args);
-		};
+		return invoke(x, analyze);
 	}
-};
-
-var analyze_lambda = function (x) {
-	var vars = x[1];
-	var bproc = analyze_sequence([x[2]]);
-
-	return function (env) {
-		return function () {
-			return bproc(environment({
-				params: vars,
-				args: arguments,
-				outer: env
-			}));
-		};
-	};
-};
-
-var analyze_sequence = function (x) {
-	var procs = x.map(analyze);
-
-	return function (env) {
-		var result, i;
-
-		for (i = 0; i < procs.length; i += 1) {
-			result = procs[i](env);
-		}
-
-		return result;
-	};
 };
