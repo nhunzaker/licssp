@@ -1,11 +1,20 @@
 var environment = require('./environment');
 var isWrappedString = /^\"(.+)\"$/;
 
+function parseString(str, env) {
+	var isQuoted = str.match(isWrappedString);
+
+	if (isQuoted) {
+		return isQuoted[1];
+	}
+
+	return env.find(str.valueOf())[str.valueOf()];
+}
+
 var analyze = module.exports = function (x) {
 	if (typeof x === 'string') {	//variable reference
 		return function (env) {
-			var matches = x.match(isWrappedString);
-			return matches? matches[1] : env.find(x.valueOf())[x.valueOf()];
+			return parseString(x, env);
 		};
 	}
 	else if (typeof x === 'number') {	//constant literal
@@ -22,24 +31,24 @@ var analyze = module.exports = function (x) {
 			};
 		}(analyze(x[1]), analyze(x[2]), analyze(x[3]));
 	}
-	else if (x[0] === 'set!') {			//(set! var exp)
+	else if (x[0] === 'set!') { //(set! var exp)
 		return function (vvar, vproc) {
 			return function (env) { env.find(vvar)[vvar] = vproc(env); };
 		}(x[1], analyze(x[2]));
 	}
-	else if (x[0] === 'define') {	//(define var exp)
+	else if (x[0] === 'define') { //(define var exp)
 		return function (vvar, vproc) {
 			return function (env) { env[vvar] = vproc(env); };
 		}(x[1], analyze(x[2]));
 	}
-	else if (x[0] === 'lambda') {	//(lambda (var*) exp)
+	else if (x[0] === 'lambda') { //(lambda (var*) exp)
 		return analyze_lambda(x);
 	}
-	else if (x[0] === 'begin') {	//(begin exp*)
+	else if (x[0] === 'begin') { //(begin exp*)
 		x.shift();
 		return analyze_sequence(x);
 	}
-	else {				//(proc exp*)
+	else { //(proc exp*)
 		var aprocs = x.map(analyze);
 		var fn = aprocs.shift();
 

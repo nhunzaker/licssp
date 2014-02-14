@@ -14,8 +14,16 @@ module.exports = function env (spec) {
 	};
 
 	env.find = function (variable) {
-		return env.hasOwnProperty(variable)? env : outer.find(variable);
+		var isLocal = env.hasOwnProperty(variable);
+
+		if (!isLocal && !outer.find) {
+			throw ReferenceError("Symbol's definition is void: " + variable);
+		}
+
+		return isLocal? env : outer.find(variable);
 	};
+
+	env.styles = {};
 
 	return env;
 };
