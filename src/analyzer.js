@@ -1,6 +1,6 @@
 var environment = require('./environment');
 
-module.exports = function analyze (x) {
+var analyze = module.exports = function (x) {
 	if (typeof x === 'string') {	//variable reference
 		return function (env) {
 			return env.find(x.valueOf())[x.valueOf()];

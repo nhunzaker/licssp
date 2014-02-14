@@ -1,17 +1,5 @@
-var isString = /^\"(.+)\"$/;
-
-function tokenize (string) {
-	return string
-		.replace(/\(/g, ' ( ')
-		.replace(/\)/g, ' ) ')
-		.replace(/\s+/g, ' ')
-		.trim()
-		.split(' ');
-}
-
-function atom (token) {
-	return isNaN(token)? token : +token;
-}
+var atom = require("./atomizer");
+var tokenize = require('./tokenizr');
 
 function read_from(tokens) {
 	// Read an expression from a sequence of tokens.
